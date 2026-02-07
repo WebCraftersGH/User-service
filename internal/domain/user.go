@@ -7,6 +7,17 @@ import (
 
 type SexEnum int
 
+func NewSexEnum(value string) SexEnum {
+	switch value {
+	case "Male":
+		return SexEnum(0)
+	case "Female":
+		return SexEnum(1)
+	default:
+		return SexEnum(2)
+	}
+}
+
 const (
 	SexMale SexEnum = iota
 	SexFemale
