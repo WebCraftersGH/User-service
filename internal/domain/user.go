@@ -31,7 +31,7 @@ var SexEnumName = map[SexEnum]string{
 }
 
 func (e SexEnum) String() string {
-	return ""
+	return SexEnumName[e]
 }
 
 type Email string

@@ -16,7 +16,6 @@ func toGormUser(u domain.User) GormUser {
 		LastLoginDate: u.LastLoginDate,
 		CreatedAt:     u.CreatedAt,
 		UpdatedAt:     u.UpdatedAt,
-		DeletedAt:     u.DeletedAt,
 	}
 }
 
@@ -32,6 +31,5 @@ func toDomainUser(u GormUser) domain.User {
 		LastLoginDate: u.LastLoginDate,
 		CreatedAt:     u.CreatedAt,
 		UpdatedAt:     u.UpdatedAt,
-		DeletedAt:     u.DeletedAt,
 	}
 }
