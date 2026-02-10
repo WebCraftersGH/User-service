@@ -7,6 +7,17 @@ import (
 
 type SexEnum int
 
+func NewSexEnum(value string) SexEnum {
+	switch value {
+	case "Male":
+		return SexEnum(0)
+	case "Female":
+		return SexEnum(1)
+	default:
+		return SexEnum(2)
+	}
+}
+
 const (
 	SexMale SexEnum = iota
 	SexFemale
@@ -20,7 +31,7 @@ var SexEnumName = map[SexEnum]string{
 }
 
 func (e SexEnum) String() string {
-	return ""
+	return SexEnumName[e]
 }
 
 type Email string
