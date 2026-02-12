@@ -12,8 +12,8 @@ type userService struct {
 
 var _ UserService = (*userService)(nil)
 
-func NewUserService() *userService {
-	return &userService{}
+func NewUserService(repo UserRepo) *userService {
+	return &userService{repo: repo}
 }
 
 func (s *userService) GetUser(ctx context.Context, userID uuid.UUID) (domain.User, error) {
