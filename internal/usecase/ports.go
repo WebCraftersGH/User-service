@@ -22,3 +22,8 @@ type UserRepo interface {
 	Update(ctx context.Context, u domain.User) (domain.User, error)
 	Delete(ctx context.Context, userID uuid.UUID) error
 }
+
+type Consumer interface {
+	Start()
+	Stop() error
+}

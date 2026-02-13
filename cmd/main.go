@@ -1,11 +1,13 @@
 package main
 
 import (
+	"github.com/WebCraftersGH/User-service/internal/adapters/kafka"
 	"github.com/WebCraftersGH/User-service/internal/config"
 	"github.com/WebCraftersGH/User-service/internal/controller"
 	"github.com/WebCraftersGH/User-service/internal/repositories/user_repo"
 	"github.com/WebCraftersGH/User-service/internal/usecase"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"net/http"
@@ -15,6 +17,7 @@ import (
 var cfg *config.Config
 
 func main() {
+	_ = godotenv.Load()
 	cfg = config.Load()
 
 	db, err := NewGORMConnection()
@@ -28,6 +31,15 @@ func main() {
 
 	router := mux.NewRouter()
 	userCTRL.RegisterRoutes(router)
+
+	kafkaConfig := &kafka.Config{}
+	consumer, err := kafka.NewKafkaConsumer(kafkaConfig, userSVC)
+	if err != nil {
+
+	}
+	go func() {
+		consumer.Start()
+	}()
 
 	http.ListenAndServe(":"+strconv.Itoa(cfg.HTTPPort), router)
 }

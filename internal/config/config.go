@@ -6,42 +6,63 @@ import (
 )
 
 type Config struct {
-	DBName     string
-	DBUser     string
-	DBPassword string
-	DBTLS      string
-
 	PostgresDSN string
 	RedisAddr   string
-	KafkaBroker string
 	HTTPPort    int
+
+	KafkaBrokers            string
+	KafkaGroupID            string
+	KafkaTimeoutMS          int
+	KafkaTopic              string
+	KafkaReadMessageTimeout int
+	KafkaAutoOffsetStore    bool
+	KafkaAutoCommit         bool
+	KafkaAutoCommitInterval int
 }
 
 func Load() *Config {
 	return &Config{
-		DBName:      getEnv("POSTGRES_DSN", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
-		DBUser:      getEnv("POSTGRES_DSN", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
-		DBPassword:  getEnv("POSTGRES_DSN", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
-		DBTLS:       getEnv("POSTGRES_DSN", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
 		PostgresDSN: getEnv("POSTGRES_DSN", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
 		RedisAddr:   getEnv("REDIS_ADDR", "localhost:6379"),
-		KafkaBroker: getEnv("KAFKA_BROKER", "localhost:9092"),
 		HTTPPort:    getEnvAsInt("HTTP_PORT", 8080),
+
+		KafkaBrokers:            getEnv("KAFKA_BROKERS", ""),
+		KafkaGroupID:            getEnv("KAFKA_GROUP_ID", ""),
+		KafkaTimeoutMS:          getEnvAsInt("KAFKA_TIMEOUT_MS", -1),
+		KafkaTopic:              getEnv("KAFKA_TOPIC", ""),
+		KafkaReadMessageTimeout: getEnvAsInt("KAFKA_READ_MESSAGE_TIMEOUT", -1),
+		KafkaAutoOffsetStore:    getEnvAsBool("KAFKA_AUTO_OFFSET_STORE", false),
+		KafkaAutoCommit:         getEnvAsBool("KAFKA_AUTO_COMMIT", true),
+		KafkaAutoCommitInterval: getEnvAsInt("KAFKA_AUTO_COMMIT_INTERVAL", -1),
 	}
 }
 
 func getEnv(key, defaultValue string) string {
-	if value, exists := os.LookupEnv(key); exists {
-		return value
+	value := os.Getenv(key)
+
+	if value == "" {
+		return defaultValue
 	}
-	return defaultValue
+
+	return value
+}
+
+func getEnvAsBool(key string, defaultValue bool) bool {
+	valueStr := getEnv(key, "")
+	switch valueStr {
+	case "true":
+		return true
+	case "false":
+		return false
+	default:
+		return defaultValue
+	}
 }
 
 func getEnvAsInt(key string, defaultValue int) int {
 	valueStr := getEnv(key, "")
 	if value, err := strconv.Atoi(valueStr); err == nil {
 		return value
-
 	}
 
 	return defaultValue
