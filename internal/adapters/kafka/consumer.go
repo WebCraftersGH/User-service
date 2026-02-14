@@ -23,6 +23,7 @@ type kafkaConsumer struct {
 	config   *Config
 	stop     bool
 	userSVC  usecase.UserService
+	lg       usecase.Logger
 }
 
 var _ usecase.Consumer = (*kafkaConsumer)(nil)
@@ -30,6 +31,7 @@ var _ usecase.Consumer = (*kafkaConsumer)(nil)
 func NewKafkaConsumer(
 	config *Config,
 	userSVC usecase.UserService,
+	lg usecase.Logger,
 ) (*kafkaConsumer, error) {
 
 	cfg := &kafka.ConfigMap{
@@ -54,6 +56,7 @@ func NewKafkaConsumer(
 		consumer: c,
 		config:   config,
 		userSVC:  userSVC,
+		lg:       lg,
 	}, nil
 }
 
