@@ -25,7 +25,7 @@ func main() {
 
 	db, err := NewGORMConnection()
 	if err != nil {
-		lg.Error("")
+		lg.Error("[MAIN][Gorm-conection][ERROR] - Gorm connection error", "gorm_err", err)
 	}
 
 	userREPO := userrepo.NewUserRepo(db, lg)
@@ -38,7 +38,7 @@ func main() {
 	kafkaConfig := &kafka.Config{}
 	consumer, err := kafka.NewKafkaConsumer(kafkaConfig, userSVC, lg)
 	if err != nil {
-
+		lg.Error("[MAIN][Kafka-conection][ERROR] - Kafka connection error", "kafka_err", err)
 	}
 	go func() {
 		consumer.Start()
