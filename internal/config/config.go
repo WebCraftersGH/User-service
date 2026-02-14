@@ -10,6 +10,8 @@ type Config struct {
 	RedisAddr   string
 	HTTPPort    int
 
+	LoggingLevel string
+
 	KafkaBrokers            string
 	KafkaGroupID            string
 	KafkaTimeoutMS          int

@@ -23,6 +23,7 @@ type kafkaConsumer struct {
 	config   *Config
 	stop     bool
 	userSVC  usecase.UserService
+	lg       usecase.Logger
 }
 
 var _ usecase.Consumer = (*kafkaConsumer)(nil)
@@ -30,6 +31,7 @@ var _ usecase.Consumer = (*kafkaConsumer)(nil)
 func NewKafkaConsumer(
 	config *Config,
 	userSVC usecase.UserService,
+	lg usecase.Logger,
 ) (*kafkaConsumer, error) {
 
 	cfg := &kafka.ConfigMap{
@@ -54,6 +56,7 @@ func NewKafkaConsumer(
 		consumer: c,
 		config:   config,
 		userSVC:  userSVC,
+		lg:       lg,
 	}, nil
 }
 
@@ -64,22 +67,22 @@ func (c *kafkaConsumer) Start() {
 		}
 		kafkaMsg, err := c.consumer.ReadMessage(c.config.ReadMessageTimeout)
 		if err != nil {
-			// логирование ошибки
+			c.lg.Warn("[Kafka-consumer][ReadMessage][WARN] - Read message error", "kafka_err", err)
 			continue
 		}
 
 		if kafkaMsg == nil {
-			// логирование пустого сообщения
+			c.lg.Warn("[Kafka-consumer][ReadMessage][WARN] - Kafka msg == nil")
 			continue
 		}
 
 		if err = c.handleMessage(kafkaMsg.Value); err != nil {
-			// логирование ошибки
+			c.lg.Warn("[Kafka-consumer][HandleMessage][WARN] - Kafka handle msg error", "kafka_err", err)
 			continue
 		}
 
 		if _, err = c.consumer.StoreMessage(kafkaMsg); err != nil {
-			// логирование ошибки
+			c.lg.Warn("[Kafka-consumer][StortMessage][WARN] - Kafka store msg error", "kafka_err", err)
 			continue
 		}
 	}
