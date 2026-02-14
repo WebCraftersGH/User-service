@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/WebCraftersGH/User-service/internal/adapters/kafka"
+	"github.com/WebCraftersGH/User-service/internal/adapters/logging"
 	"github.com/WebCraftersGH/User-service/internal/config"
 	"github.com/WebCraftersGH/User-service/internal/controller"
 	"github.com/WebCraftersGH/User-service/internal/repositories/user_repo"
@@ -20,22 +21,24 @@ func main() {
 	_ = godotenv.Load()
 	cfg = config.Load()
 
+	lg := logging.NewLogger(cfg.LoggingLevel)
+
 	db, err := NewGORMConnection()
 	if err != nil {
-
+		lg.Error("[MAIN][Gorm-conection][ERROR] - Gorm connection error", "gorm_err", err)
 	}
 
-	userREPO := userrepo.NewUserRepo(db)
-	userSVC := usecase.NewUserService(userREPO)
-	userCTRL := controller.NewUserController(userSVC)
+	userREPO := userrepo.NewUserRepo(db, lg)
+	userSVC := usecase.NewUserService(userREPO, lg)
+	userCTRL := controller.NewUserController(userSVC, lg)
 
 	router := mux.NewRouter()
 	userCTRL.RegisterRoutes(router)
 
 	kafkaConfig := &kafka.Config{}
-	consumer, err := kafka.NewKafkaConsumer(kafkaConfig, userSVC)
+	consumer, err := kafka.NewKafkaConsumer(kafkaConfig, userSVC, lg)
 	if err != nil {
-
+		lg.Error("[MAIN][Kafka-conection][ERROR] - Kafka connection error", "kafka_err", err)
 	}
 	go func() {
 		consumer.Start()

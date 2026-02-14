@@ -13,10 +13,11 @@ import (
 
 type userController struct {
 	svc usecase.UserService
+	lg  usecase.Logger
 }
 
-func NewUserController(svc usecase.UserService) *userController {
-	return &userController{svc: svc}
+func NewUserController(svc usecase.UserService, lg usecase.Logger) *userController {
+	return &userController{svc: svc, lg: lg}
 }
 
 func (c *userController) RegisterRoutes(router *mux.Router) {
@@ -27,6 +28,7 @@ func (c *userController) RegisterRoutes(router *mux.Router) {
 }
 
 func (c *userController) GetMe(w http.ResponseWriter, r *http.Request) {
+	c.lg.Debug("[User-controller][GetMe][DEBUG] - Start function")
 	token, err := getUserToken(r)
 	if err != nil {
 
@@ -58,10 +60,13 @@ func (c *userController) GetMe(w http.ResponseWriter, r *http.Request) {
 
 	uR := toUserResponse(u)
 
+	c.lg.Debug("[User-controller][GetMe][DEBUG] - End function")
 	json.NewEncoder(w).Encode(uR)
 }
 
 func (c *userController) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	c.lg.Debug("[User-controller][GetUserByID][DEBUG] - Start function")
+
 	id, err := uuid.Parse(mux.Vars(r)["uuid"])
 	if err != nil {
 		http.Error(w, "parse user uuid error", http.StatusBadRequest)
@@ -77,42 +82,48 @@ func (c *userController) GetUserByID(w http.ResponseWriter, r *http.Request) {
 
 	uR := toUserResponse(u)
 
+	c.lg.Debug("[User-controller][GetUserByID][DEBUG] - End function")
 	json.NewEncoder(w).Encode(uR)
 }
 
 func (c *userController) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	c.lg.Debug("[User-controller][DeleteUser][DEBUG] - Start function")
+
 	id, err := uuid.Parse(mux.Vars(r)["uuid"])
 	if err != nil {
 		http.Error(w, "parse user uuid error", http.StatusBadRequest)
-		return	
+		return
 	}
 
 	if err := checkRights(id.String(), r); err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)	
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
 	if err := c.svc.DeleteUser(r.Context(), id); err != nil {
 		if errors.Is(err, domain.ErrUserNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
-			return	
+			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return	
+		return
 	}
 
+	c.lg.Debug("[User-controller][GetUserByID][DEBUG] - End function")
 	w.WriteHeader(http.StatusOK)
 }
 
 func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	c.lg.Debug("[User-controller][UpdateUser][DEBUG] - Start function")
+
 	id, err := uuid.Parse(mux.Vars(r)["uuid"])
 	if err != nil {
 		http.Error(w, "parse user uuid error", http.StatusBadRequest)
-		return	
+		return
 	}
 
 	if err := checkRights(id.String(), r); err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)	
+		http.Error(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -123,11 +134,11 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	domainUser := domain.User{
-		ID: id,
+		ID:       id,
 		Username: uUpdateReq.Username,
-		FIO: uUpdateReq.FIO,
-		BIO: uUpdateReq.BIO,
-		Sex: domain.NewSexEnum(uUpdateReq.Sex),
+		FIO:      uUpdateReq.FIO,
+		BIO:      uUpdateReq.BIO,
+		Sex:      domain.NewSexEnum(uUpdateReq.Sex),
 		Birthday: uUpdateReq.Birthday,
 	}
 
@@ -138,5 +149,6 @@ func (c *userController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	uR := toUserResponse(u)
 
+	c.lg.Debug("[User-controller][UpdateUser][DEBUG] - End function")
 	json.NewEncoder(w).Encode(uR)
 }

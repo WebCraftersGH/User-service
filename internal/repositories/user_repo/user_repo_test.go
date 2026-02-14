@@ -154,7 +154,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 	ctx := context.Background()
 	tx := withTx(t) // Begin + Rollback в Cleanup
 
-	repo := NewUserRepo(tx)
+	repo := NewUserRepo(tx, nil)
 
 	u := domain.User{
 		Username: "someName",
