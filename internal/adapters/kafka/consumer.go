@@ -41,14 +41,17 @@ func NewKafkaConsumer(
 		"enable.auto.offset.store": config.AutoOffsetStore,
 		"enable.auto.commit":       config.AutoCommit,
 		"auto.commit.interval.ms":  config.AutoCommitInterval,
+		"auto.offset.reset":        "earliest",
 	}
 
 	c, err := kafka.NewConsumer(cfg)
 	if err != nil {
-		return nil, nil
+		lg.Error("[Kafka-consumer][NewConsumer][ERROR] - Error to create kafka consumer", "kafka_err", err)
+		return nil, err
 	}
 
 	if err := c.Subscribe(config.Topic, nil); err != nil {
+		lg.Error("[Kafka-consumer][SubscribeTopic][ERROR] - Error subscribe to topic", "kafka_err", err)
 		return nil, err
 	}
 
@@ -67,7 +70,10 @@ func (c *kafkaConsumer) Start() {
 		}
 		kafkaMsg, err := c.consumer.ReadMessage(c.config.ReadMessageTimeout)
 		if err != nil {
-			c.lg.Warn("[Kafka-consumer][ReadMessage][WARN] - Read message error", "kafka_err", err)
+			if ke, ok := err.(kafka.Error); ok && ke.Code() == kafka.ErrTimedOut {
+				continue
+			}
+			c.lg.Warn("[Kafka-consumer][ReadMessage][ERROR] - Read message error", "kafka_err", err)
 			continue
 		}
 
