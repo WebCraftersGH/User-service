@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 var cfg *config.Config
@@ -35,7 +36,16 @@ func main() {
 	router := mux.NewRouter()
 	userCTRL.RegisterRoutes(router)
 
-	kafkaConfig := &kafka.Config{}
+	kafkaConfig := &kafka.Config{
+		TimeoutMS:          cfg.KafkaTimeoutMS,
+		Topic:              cfg.KafkaTopic,
+		GroupID:            cfg.KafkaGroupID,
+		AutoOffsetStore:    cfg.KafkaAutoOffsetStore,
+		ReadMessageTimeout: time.Duration(cfg.KafkaReadMessageTimeout) * time.Millisecond,
+		AutoCommit:         cfg.KafkaAutoCommit,
+		AutoCommitInterval: cfg.KafkaAutoCommitInterval,
+		BootStrapServers:   cfg.KafkaBrokers,
+	}
 	consumer, err := kafka.NewKafkaConsumer(kafkaConfig, userSVC, lg)
 	if err != nil {
 		lg.Error("[MAIN][Kafka-conection][ERROR] - Kafka connection error", "kafka_err", err)
@@ -49,7 +59,7 @@ func main() {
 
 func NewGORMConnection() (*gorm.DB, error) {
 
-	db, err := gorm.Open(postgres.Open(cfg.PostgresDSN), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.GetDSN()), &gorm.Config{})
 
 	return db, err
 }

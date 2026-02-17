@@ -5,20 +5,19 @@ import (
 )
 
 type UserResponse struct {
-	ID            string
-	Username      string
-	Email         string
-	FIO           string
-	BIO           string
-	Sex           string
-	Birthday      *time.Time
-	LastLoginDate *time.Time
+	ID       string
+	Username string
+	Email    string
+	FIO      string
+	BIO      string
+	Sex      string
+	Birthday *time.Time
 }
 
 type UserUpdateRequest struct {
 	Username string
-	FIO string
-	BIO string
-	Sex string
+	FIO      string
+	BIO      string
+	Sex      string
 	Birthday *time.Time
 }
