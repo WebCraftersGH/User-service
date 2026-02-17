@@ -6,9 +6,14 @@ import (
 )
 
 type Config struct {
-	PostgresDSN string
-	RedisAddr   string
-	HTTPPort    int
+	DBUser string
+	DBPass string
+	DBHost string
+	DBPort string
+	DBName string
+
+	RedisAddr string
+	HTTPPort  int
 
 	LoggingLevel string
 
@@ -24,19 +29,30 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		PostgresDSN: getEnv("POSTGRES_DSN", "postgres://user:pass@localhost:5432/db?sslmode=disable"),
-		RedisAddr:   getEnv("REDIS_ADDR", "localhost:6379"),
-		HTTPPort:    getEnvAsInt("HTTP_PORT", 8080),
+		DBUser: getEnv("DB_USER", "postgres"),
+		DBPass: getEnv("DB_PASS", "postgres"),
+		DBHost: getEnv("DB_HOST", "localhost"),
+		DBPort: getEnv("DB_PORT", "5432"),
+		DBName: getEnv("DB_NAME", "postgres"),
 
-		KafkaBrokers:            getEnv("KAFKA_BROKERS", ""),
-		KafkaGroupID:            getEnv("KAFKA_GROUP_ID", ""),
-		KafkaTimeoutMS:          getEnvAsInt("KAFKA_TIMEOUT_MS", -1),
-		KafkaTopic:              getEnv("KAFKA_TOPIC", ""),
-		KafkaReadMessageTimeout: getEnvAsInt("KAFKA_READ_MESSAGE_TIMEOUT", -1),
+		RedisAddr: getEnv("REDIS_ADDR", "localhost:6379"),
+		HTTPPort:  getEnvAsInt("HTTP_PORT", 8080),
+
+		LoggingLevel: getEnv("LOGGING_LEVEL", "INFO"),
+
+		KafkaBrokers:            getEnv("KAFKA_BROKERS", "localhost:9092"),
+		KafkaGroupID:            getEnv("KAFKA_GROUP_ID", "default"),
+		KafkaTimeoutMS:          getEnvAsInt("KAFKA_TIMEOUT_MS", 10000),
+		KafkaTopic:              getEnv("KAFKA_TOPIC", "default"),
+		KafkaReadMessageTimeout: getEnvAsInt("KAFKA_READ_MESSAGE_TIMEOUT", 1),
 		KafkaAutoOffsetStore:    getEnvAsBool("KAFKA_AUTO_OFFSET_STORE", false),
 		KafkaAutoCommit:         getEnvAsBool("KAFKA_AUTO_COMMIT", true),
-		KafkaAutoCommitInterval: getEnvAsInt("KAFKA_AUTO_COMMIT_INTERVAL", -1),
+		KafkaAutoCommitInterval: getEnvAsInt("KAFKA_AUTO_COMMIT_INTERVAL", 1),
 	}
+}
+
+func (c *Config) GetDSN() string {
+	return "postgres://" + c.DBUser + ":" + c.DBPass + "@" + c.DBHost + ":" + c.DBPort + "/" + c.DBName + "?sslmode=disable"
 }
 
 func getEnv(key, defaultValue string) string {
