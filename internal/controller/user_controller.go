@@ -21,10 +21,16 @@ func NewUserController(svc usecase.UserService, lg usecase.Logger) *userControll
 }
 
 func (c *userController) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/health", c.Health).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/users/me", c.GetMe).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/users/{uuid}", c.GetUserByID).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/users/{uuid}", c.DeleteUser).Methods(http.MethodDelete)
 	router.HandleFunc("/api/v1/users/{uuid}", c.UpdateUser).Methods(http.MethodPut)
+}
+
+func (c *userController) Health(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("ok"))
 }
 
 func (c *userController) GetMe(w http.ResponseWriter, r *http.Request) {
