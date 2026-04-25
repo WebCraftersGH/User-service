@@ -30,7 +30,7 @@ type Config struct {
 func Load() *Config {
 	return &Config{
 		DBUser: getEnv("DB_USER", "postgres"),
-		DBPass: getEnv("DB_PASS", "postgres"),
+		DBPass: getEnv("DB_PASSWORD", "postgres"),
 		DBHost: getEnv("DB_HOST", "localhost"),
 		DBPort: getEnv("DB_PORT", "5432"),
 		DBName: getEnv("DB_NAME", "postgres"),
