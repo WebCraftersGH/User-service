@@ -2,6 +2,7 @@ package docscontroller
 
 import (
 	"embed"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -19,6 +20,12 @@ func NewDocsHandler() *DocsHandler {
 	}
 
 	return &DocsHandler{spec: spec}
+}
+
+func (c *DocsHandler) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/swagger/openapi.json", c.ServeSpec).Methods(http.MethodGet)
+	router.HandleFunc("/swagger/", c.ServeUI).Methods(http.MethodGet)
+	router.HandleFunc("/swagger", c.RedirectToUI).Methods(http.MethodGet)
 }
 
 func (h *DocsHandler) ServeSpec(w http.ResponseWriter, r *http.Request) {

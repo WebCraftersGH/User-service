@@ -5,6 +5,7 @@ import (
 	"github.com/WebCraftersGH/User-service/internal/adapters/logging"
 	"github.com/WebCraftersGH/User-service/internal/config"
 	"github.com/WebCraftersGH/User-service/internal/controller"
+	docscontroller "github.com/WebCraftersGH/User-service/internal/controller/docs"
 	"github.com/WebCraftersGH/User-service/internal/repositories/user_repo"
 	"github.com/WebCraftersGH/User-service/internal/usecase"
 	"github.com/gorilla/mux"
@@ -33,8 +34,11 @@ func main() {
 	userSVC := usecase.NewUserService(userREPO, lg)
 	userCTRL := controller.NewUserController(userSVC, lg)
 
+	docsCTRL := docscontroller.NewDocsHandler()
+
 	router := mux.NewRouter()
 	userCTRL.RegisterRoutes(router)
+	docsCTRL.RegisterRoutes(router)
 
 	kafkaConfig := &kafka.Config{
 		TimeoutMS:          cfg.KafkaTimeoutMS,
