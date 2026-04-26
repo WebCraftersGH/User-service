@@ -1,20 +1,23 @@
 package main
 
 import (
-	"github.com/WebCraftersGH/User-service/internal/adapters/kafka"
-	"github.com/WebCraftersGH/User-service/internal/adapters/logging"
-	"github.com/WebCraftersGH/User-service/internal/config"
-	"github.com/WebCraftersGH/User-service/internal/controller"
-	docscontroller "github.com/WebCraftersGH/User-service/internal/controller/docs"
-	"github.com/WebCraftersGH/User-service/internal/repositories/user_repo"
-	"github.com/WebCraftersGH/User-service/internal/usecase"
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/WebCraftersGH/User-service/internal/adapters/kafka"
+	"github.com/WebCraftersGH/User-service/internal/adapters/logging"
+	"github.com/WebCraftersGH/User-service/internal/config"
+	"github.com/WebCraftersGH/User-service/internal/repositories/user_repo"
+	transporthttp "github.com/WebCraftersGH/User-service/internal/transport"
+	"github.com/WebCraftersGH/User-service/internal/usecase"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+
+	authclient "github.com/WebCraftersGH/User-service/internal/authclient"
+	docsH "github.com/WebCraftersGH/User-service/internal/transport/http/docs"
+	handlers "github.com/WebCraftersGH/User-service/internal/transport/http/handlers"
 )
 
 var cfg *config.Config
@@ -32,13 +35,19 @@ func main() {
 
 	userREPO := userrepo.NewUserRepo(db, lg)
 	userSVC := usecase.NewUserService(userREPO, lg)
-	userCTRL := controller.NewUserController(userSVC, lg)
 
-	docsCTRL := docscontroller.NewDocsHandler()
+	userHandler := handlers.NewUserHandler(userSVC)
+	docsHandler := docsH.NewDocsHandler()
+	healthHandler := handlers.NewHealthHandler()
 
-	router := mux.NewRouter()
-	userCTRL.RegisterRoutes(router)
-	docsCTRL.RegisterRoutes(router)
+	authCl := authclient.New(cfg.AUTH_SERVICE_BASE_URL)
+
+	routerN := transporthttp.NewRouter(
+		userHandler,
+		healthHandler,
+		docsHandler,
+		authCl,
+	)
 
 	kafkaConfig := &kafka.Config{
 		TimeoutMS:          cfg.KafkaTimeoutMS,
@@ -58,7 +67,7 @@ func main() {
 		consumer.Start()
 	}()
 
-	http.ListenAndServe(":"+strconv.Itoa(cfg.HTTPPort), router)
+	http.ListenAndServe(":"+strconv.Itoa(cfg.HTTPPort), routerN)
 }
 
 func NewGORMConnection() (*gorm.DB, error) {

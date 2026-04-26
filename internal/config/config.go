@@ -25,6 +25,8 @@ type Config struct {
 	KafkaAutoOffsetStore    bool
 	KafkaAutoCommit         bool
 	KafkaAutoCommitInterval int
+
+	AUTH_SERVICE_BASE_URL string
 }
 
 func Load() *Config {
@@ -48,6 +50,7 @@ func Load() *Config {
 		KafkaAutoOffsetStore:    getEnvAsBool("KAFKA_AUTO_OFFSET_STORE", false),
 		KafkaAutoCommit:         getEnvAsBool("KAFKA_AUTO_COMMIT", true),
 		KafkaAutoCommitInterval: getEnvAsInt("KAFKA_AUTO_COMMIT_INTERVAL", 1),
+		AUTH_SERVICE_BASE_URL:   getEnv("AUTH_SERVICE_BASE_URL", "http://localhost:8080/auth/"),
 	}
 }
 
