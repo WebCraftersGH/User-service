@@ -58,7 +58,7 @@ var swaggerUIHTML = []byte(`<!doctype html>
   <script>
     window.onload = function() {
       window.ui = SwaggerUIBundle({
-        url: '/swagger/openapi.json',
+        url: './openapi.json',
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [SwaggerUIBundle.presets.apis],
