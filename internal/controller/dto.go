@@ -5,19 +5,19 @@ import (
 )
 
 type UserResponse struct {
-	ID       string
-	Username string
-	Email    string
-	FIO      string
-	BIO      string
-	Sex      string
-	Birthday *time.Time
+	ID       string     `json:"id"`
+	Username string     `json:"username"`
+	Email    string     `json:"email"`
+	FIO      string     `json:"fio"`
+	BIO      string     `json:"bio"`
+	Sex      string     `json:"sex"`
+	Birthday *time.Time `json:"birthday,omitempty"`
 }
 
 type UserUpdateRequest struct {
-	Username string
-	FIO      string
-	BIO      string
-	Sex      string
-	Birthday *time.Time
+	Username string     `json:"username"`
+	FIO      string     `json:"fio"`
+	BIO      string     `json:"bio"`
+	Sex      string     `json:"sex"`
+	Birthday *time.Time `json:"birthday,omitempty"`
 }
