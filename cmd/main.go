@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/WebCraftersGH/User-service/internal/adapters/kafka"
-	"github.com/WebCraftersGH/User-service/internal/adapters/logging"
 	"github.com/WebCraftersGH/User-service/internal/config"
 	"github.com/WebCraftersGH/User-service/internal/repositories/user_repo"
 	transporthttp "github.com/WebCraftersGH/User-service/internal/transport"
@@ -18,6 +17,7 @@ import (
 	authclient "github.com/WebCraftersGH/User-service/internal/authclient"
 	docsH "github.com/WebCraftersGH/User-service/internal/transport/http/docs"
 	handlers "github.com/WebCraftersGH/User-service/internal/transport/http/handlers"
+	logging "github.com/WebCraftersGH/User-service/pkg/logging"
 )
 
 var cfg *config.Config
@@ -26,15 +26,19 @@ func main() {
 	_ = godotenv.Load()
 	cfg = config.Load()
 
-	lg := logging.NewLogger(cfg.LoggingLevel)
+	logger, closer, err := logging.New(cfg.LoggingLevel)
+	if err != nil {
+		panic(err)
+	}
+	defer closer.Close()
 
 	db, err := NewGORMConnection()
 	if err != nil {
-		lg.Error("[MAIN][Gorm-conection][ERROR] - Gorm connection error", "gorm_err", err)
+		logger.WithError(err).Error("db connection error")
 	}
 
-	userREPO := userrepo.NewUserRepo(db, lg)
-	userSVC := usecase.NewUserService(userREPO, lg)
+	userREPO := userrepo.NewUserRepo(db, logger)
+	userSVC := usecase.NewUserService(userREPO, logger)
 
 	userHandler := handlers.NewUserHandler(userSVC)
 	docsHandler := docsH.NewDocsHandler()
@@ -59,9 +63,9 @@ func main() {
 		AutoCommitInterval: cfg.KafkaAutoCommitInterval,
 		BootStrapServers:   cfg.KafkaBrokers,
 	}
-	consumer, err := kafka.NewKafkaConsumer(kafkaConfig, userSVC, lg)
+	consumer, err := kafka.NewKafkaConsumer(kafkaConfig, userSVC, logger)
 	if err != nil {
-		lg.Error("[MAIN][Kafka-conection][ERROR] - Kafka connection error", "kafka_err", err)
+		logger.WithError(err).Error("kafka connection error")
 	}
 	go func() {
 		consumer.Start()

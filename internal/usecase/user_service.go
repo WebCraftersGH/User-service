@@ -3,17 +3,18 @@ package usecase
 import (
 	"context"
 	"github.com/WebCraftersGH/User-service/internal/domain"
+	"github.com/WebCraftersGH/User-service/pkg/logging"
 	"github.com/google/uuid"
 )
 
 type userService struct {
 	repo UserRepo
-	lg   Logger
+	lg   logging.Logger
 }
 
 var _ UserService = (*userService)(nil)
 
-func NewUserService(repo UserRepo, lg Logger) *userService {
+func NewUserService(repo UserRepo, lg logging.Logger) *userService {
 	return &userService{
 		repo: repo,
 		lg:   lg,

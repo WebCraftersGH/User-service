@@ -6,16 +6,17 @@ import (
 	"fmt"
 	"github.com/WebCraftersGH/User-service/internal/domain"
 	"github.com/WebCraftersGH/User-service/internal/usecase"
+	"github.com/WebCraftersGH/User-service/pkg/logging"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type userRepo struct {
 	db *gorm.DB
-	lg usecase.Logger
+	lg logging.Logger
 }
 
-func NewUserRepo(db *gorm.DB, lg usecase.Logger) usecase.UserRepo {
+func NewUserRepo(db *gorm.DB, lg logging.Logger) usecase.UserRepo {
 	return &userRepo{
 		db: db,
 		lg: lg,

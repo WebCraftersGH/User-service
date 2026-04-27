@@ -3,6 +3,7 @@ package kafka
 import (
 	"encoding/json"
 	"github.com/WebCraftersGH/User-service/internal/usecase"
+	"github.com/WebCraftersGH/User-service/pkg/logging"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"time"
 )
@@ -23,7 +24,7 @@ type kafkaConsumer struct {
 	config   *Config
 	stop     bool
 	userSVC  usecase.UserService
-	lg       usecase.Logger
+	lg       logging.Logger
 }
 
 var _ usecase.Consumer = (*kafkaConsumer)(nil)
@@ -31,7 +32,7 @@ var _ usecase.Consumer = (*kafkaConsumer)(nil)
 func NewKafkaConsumer(
 	config *Config,
 	userSVC usecase.UserService,
-	lg usecase.Logger,
+	lg logging.Logger,
 ) (*kafkaConsumer, error) {
 
 	cfg := &kafka.ConfigMap{
