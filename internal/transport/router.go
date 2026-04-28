@@ -29,8 +29,6 @@ func NewRouter(
 
 	router.HandleFunc("/health", healthHandler.Check).Methods(http.MethodGet)
 
-	router.HandleFunc("/api/v1/users/{uuid}", userHandler.GetUserByID).Methods(http.MethodGet)
-
 	protected := router.PathPrefix("/api/v1").Subrouter()
 	protected.Use(middlewares.AuthFromToken(authChecker, logger))
 
@@ -38,7 +36,10 @@ func NewRouter(
 	protected.HandleFunc("/users/me", userHandler.DeleteUser).Methods(http.MethodDelete)
 	protected.HandleFunc("/users/me", userHandler.UpdateUser).Methods(http.MethodPut)
 
-	router.HandleFunc("/api/v1/users/{uuid}", userHandler.GetUserByID).Methods(http.MethodGet)
+	router.HandleFunc(
+		"/api/v1/users/{uuid:[0-9a-fA-F-]+}",
+		userHandler.GetUserByID,
+	).Methods(http.MethodGet)
 
 	return router
 }
