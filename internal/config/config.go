@@ -38,7 +38,7 @@ func Load() *Config {
 		DBName: getEnv("DB_NAME", "postgres"),
 
 		RedisAddr: getEnv("REDIS_ADDR", "localhost:6379"),
-		HTTPPort:  getEnvAsInt("HTTP_PORT", 8080),
+		HTTPPort:  getEnvAsInt("HTTP_PORT", 8082),
 
 		LoggingLevel: getEnv("LOGGING_LEVEL", "INFO"),
 

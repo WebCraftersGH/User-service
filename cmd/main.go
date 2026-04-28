@@ -40,7 +40,7 @@ func main() {
 	userREPO := userrepo.NewUserRepo(db, logger)
 	userSVC := usecase.NewUserService(userREPO, logger)
 
-	userHandler := handlers.NewUserHandler(userSVC)
+	userHandler := handlers.NewUserHandler(userSVC, logger)
 	docsHandler := docsH.NewDocsHandler()
 	healthHandler := handlers.NewHealthHandler()
 
@@ -51,6 +51,7 @@ func main() {
 		healthHandler,
 		docsHandler,
 		authCl,
+		logger,
 	)
 
 	kafkaConfig := &kafka.Config{
@@ -71,7 +72,10 @@ func main() {
 		consumer.Start()
 	}()
 
-	http.ListenAndServe(":"+strconv.Itoa(cfg.HTTPPort), routerN)
+	if err := http.ListenAndServe(":"+strconv.Itoa(cfg.HTTPPort), routerN); err != nil {
+		logger.WithError(err).Error("http error")
+		return
+	}
 }
 
 func NewGORMConnection() (*gorm.DB, error) {

@@ -8,6 +8,7 @@ import (
 	"github.com/WebCraftersGH/User-service/internal/middlewares"
 	swaggerdocs "github.com/WebCraftersGH/User-service/internal/transport/http/docs"
 	httphandlers "github.com/WebCraftersGH/User-service/internal/transport/http/handlers"
+	"github.com/WebCraftersGH/User-service/pkg/logging"
 )
 
 func NewRouter(
@@ -15,26 +16,29 @@ func NewRouter(
 	healthHandler *httphandlers.HealthHandler,
 	docsHandler *swaggerdocs.DocsHandler,
 	authChecker middlewares.AuthChecker,
+	logger logging.Logger,
 ) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
-	// DocsHandlers
+	router.Use(middlewares.GenerateRequestID)
+	router.Use(middlewares.LoggingMiddleware(logger))
+
 	router.HandleFunc("/swagger/openapi.json", docsHandler.ServeSpec).Methods(http.MethodGet)
 	router.HandleFunc("/swagger/", docsHandler.ServeUI).Methods(http.MethodGet)
 	router.HandleFunc("/swagger", docsHandler.RedirectToUI).Methods(http.MethodGet)
 
-	//Health
 	router.HandleFunc("/health", healthHandler.Check).Methods(http.MethodGet)
+
 	router.HandleFunc("/api/v1/users/{uuid}", userHandler.GetUserByID).Methods(http.MethodGet)
 
 	protected := router.PathPrefix("/api/v1").Subrouter()
-
-	//auth-middleware
-	protected.Use(middlewares.AuthFromToken(authChecker))
+	protected.Use(middlewares.AuthFromToken(authChecker, logger))
 
 	protected.HandleFunc("/users/me", userHandler.GetMe).Methods(http.MethodGet)
 	protected.HandleFunc("/users/me", userHandler.DeleteUser).Methods(http.MethodDelete)
 	protected.HandleFunc("/users/me", userHandler.UpdateUser).Methods(http.MethodPut)
+
+	router.HandleFunc("/api/v1/users/{uuid}", userHandler.GetUserByID).Methods(http.MethodGet)
 
 	return router
 }
