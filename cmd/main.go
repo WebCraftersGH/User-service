@@ -44,7 +44,7 @@ func main() {
 	docsHandler := docsH.NewDocsHandler()
 	healthHandler := handlers.NewHealthHandler()
 
-	authCl := authclient.New(cfg.AUTH_SERVICE_BASE_URL)
+	authCl := authclient.New(cfg.AUTH_SERVICE_BASE_URL, logger)
 
 	routerN := transporthttp.NewRouter(
 		userHandler,

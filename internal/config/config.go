@@ -37,7 +37,7 @@ func Load() *Config {
 		RedisAddr: getEnv("REDIS_ADDR", "localhost:6379"),
 		HTTPPort:  getEnvAsInt("HTTP_PORT", 8082),
 
-		LoggingLevel: getEnv("LOGGING_LEVEL", "INFO"),
+		LoggingLevel: getEnv("LOGGING_LEVEL", "DEBUG"),
 
 		KafkaBrokers:            getEnv("KAFKA_BROKERS", "localhost:9092"),
 		KafkaGroupID:            getEnv("KAFKA_GROUP_ID", "default"),
