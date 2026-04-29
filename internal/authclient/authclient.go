@@ -16,7 +16,7 @@ import (
 var ErrUnauthorized = errors.New("unauthorized")
 
 type CheckResponse struct {
-	UserID string `json:"user_id"`
+	UserID string `json:"uid"`
 }
 
 type Client struct {
