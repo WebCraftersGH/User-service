@@ -6,17 +6,14 @@ import (
 )
 
 type Config struct {
-	DBUser string
-	DBPass string
-	DBHost string
-	DBPort string
-	DBName string
-
-	RedisAddr string
-	HTTPPort  int
-
-	LoggingLevel string
-
+	DBUser                  string
+	DBPass                  string
+	DBHost                  string
+	DBPort                  string
+	DBName                  string
+	RedisAddr               string
+	HTTPPort                int
+	LoggingLevel            string
 	KafkaBrokers            string
 	KafkaGroupID            string
 	KafkaTimeoutMS          int
@@ -25,8 +22,8 @@ type Config struct {
 	KafkaAutoOffsetStore    bool
 	KafkaAutoCommit         bool
 	KafkaAutoCommitInterval int
-
-	AUTH_SERVICE_BASE_URL string
+	AUTH_SERVICE_BASE_URL   string
+	DEBUG_MODE              bool
 }
 
 func Load() *Config {
@@ -51,6 +48,7 @@ func Load() *Config {
 		KafkaAutoCommit:         getEnvAsBool("KAFKA_AUTO_COMMIT", true),
 		KafkaAutoCommitInterval: getEnvAsInt("KAFKA_AUTO_COMMIT_INTERVAL", 1),
 		AUTH_SERVICE_BASE_URL:   getEnv("AUTH_SERVICE_BASE_URL", "http://localhost:8080/auth/"),
+		DEBUG_MODE:              getEnvAsBool("DEBUG_MODE", true),
 	}
 }
 
