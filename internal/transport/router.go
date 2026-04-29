@@ -17,15 +17,20 @@ func NewRouter(
 	docsHandler *swaggerdocs.DocsHandler,
 	authChecker middlewares.AuthChecker,
 	logger logging.Logger,
+	debugMode bool,
 ) *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.Use(middlewares.GenerateRequestID)
 	router.Use(middlewares.LoggingMiddleware(logger))
 
-	router.HandleFunc("/swagger/openapi.json", docsHandler.ServeSpec).Methods(http.MethodGet)
-	router.HandleFunc("/swagger/", docsHandler.ServeUI).Methods(http.MethodGet)
-	router.HandleFunc("/swagger", docsHandler.RedirectToUI).Methods(http.MethodGet)
+	if debugMode {
+		router.Use(middlewares.CORSMiddleware)
+
+		router.HandleFunc("/swagger/openapi.json", docsHandler.ServeSpec).Methods(http.MethodGet)
+		router.HandleFunc("/swagger/", docsHandler.ServeUI).Methods(http.MethodGet)
+		router.HandleFunc("/swagger", docsHandler.RedirectToUI).Methods(http.MethodGet)
+	}
 
 	router.HandleFunc("/health", healthHandler.Check).Methods(http.MethodGet)
 

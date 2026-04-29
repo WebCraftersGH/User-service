@@ -52,6 +52,7 @@ func main() {
 		docsHandler,
 		authCl,
 		logger,
+		cfg.DEBUG_MODE,
 	)
 
 	kafkaConfig := &kafka.Config{
