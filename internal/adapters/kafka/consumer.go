@@ -106,8 +106,11 @@ func (c *kafkaConsumer) Stop() error {
 }
 
 func (c *kafkaConsumer) handleMessage(message []byte) error {
+	c.lg.WithField("raw_message", string(message)).Info("handle message")
+
 	var u KafkaUser
 	if err := json.Unmarshal(message, &u); err != nil {
+		c.lg.WithField("kafka_user", u).Info("handle message start")
 		return err
 	}
 

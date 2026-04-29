@@ -2,15 +2,14 @@ package kafka
 
 import (
 	"github.com/WebCraftersGH/User-service/internal/domain"
+	"github.com/google/uuid"
 )
 
 func toDomainUser(u KafkaUser) domain.User {
+	uID, _ := uuid.Parse(u.UserID)
 	return domain.User{
-		Username: u.Username,
 		Email:    domain.Email(u.Email),
-		FIO:      u.FIO,
-		BIO:      u.BIO,
-		Sex:      domain.NewSexEnum(u.Sex),
-		Birthday: u.Birthday,
+		CreatedAt: u.CreatedAt,
+		ID: uID,
 	}
 }
