@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"github.com/WebCraftersGH/User-service/internal/middlewares"
 
 	authclient "github.com/WebCraftersGH/User-service/internal/authclient"
 	docsH "github.com/WebCraftersGH/User-service/internal/transport/http/docs"
@@ -55,6 +56,12 @@ func main() {
 		cfg.DEBUG_MODE,
 	)
 
+	var handler http.Handler = routerN
+
+	if cfg.DEBUG_MODE {
+		handler = middlewares.CORSMiddleware(handler)
+	}
+
 	kafkaConfig := &kafka.Config{
 		TimeoutMS:          cfg.KafkaTimeoutMS,
 		Topic:              cfg.KafkaTopic,
@@ -73,7 +80,7 @@ func main() {
 		consumer.Start()
 	}()
 
-	if err := http.ListenAndServe(":"+strconv.Itoa(cfg.HTTPPort), routerN); err != nil {
+	if err := http.ListenAndServe(":"+strconv.Itoa(cfg.HTTPPort), handler); err != nil {
 		logger.WithError(err).Error("http error")
 		return
 	}

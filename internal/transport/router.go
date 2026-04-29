@@ -25,8 +25,6 @@ func NewRouter(
 	router.Use(middlewares.LoggingMiddleware(logger))
 
 	if debugMode {
-		router.Use(middlewares.CORSMiddleware)
-
 		router.HandleFunc("/swagger/openapi.json", docsHandler.ServeSpec).Methods(http.MethodGet)
 		router.HandleFunc("/swagger/", docsHandler.ServeUI).Methods(http.MethodGet)
 		router.HandleFunc("/swagger", docsHandler.RedirectToUI).Methods(http.MethodGet)
