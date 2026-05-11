@@ -37,7 +37,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /opt/LearnFlow-Launcher
+            cd /opt/LearnFlow-launcher
             docker compose pull users-service
             docker compose up -d --no-deps users-service
             docker image prune -f
